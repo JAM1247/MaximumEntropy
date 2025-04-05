@@ -41,29 +41,24 @@ def control(t, params=None):
 # Maximum Entropy 
 @jax.jit
 def p_lam_unnorm(x, y, lam):
-    # lam is a vector of Lagrange multipliers
+    # lam is the vector of Lagrange multipliers
     (l1, l2, l11, l22, l12, l3x, l3y, l21) = lam
-    # Computes exponent as a linear combo
     exponent = (l1 * x + l2 * y +
                 l11 * (x**2) + l22 * (y**2) + l12 * (x * y) +
                 l3x * (x**3) + l3y * (y**3) +
                 l21 * (x**2 * y))
-    # Clamping the negative exponent for numerical stability
     e_clamped = jnp.clip(-exponent, -50.0, 50.0)
     return jnp.exp(e_clamped)
 
 @jax.jit
 def compute_single_moment(lam, n, m, xgrid, ygrid):
-    # Create a meshgrid for numerical integration over x and y
     XX, YY = jnp.meshgrid(xgrid, ygrid, indexing='xy')
-    # Compute the unnormalized PDF on the grid
     pdf_unn = p_lam_unnorm(XX, YY, lam)
-    # Determine the grid spacing
     dx = xgrid[1] - xgrid[0]
     dy = ygrid[1] - ygrid[0]
-    # Compute the normalization constant Z (with a small offset to avoid division by zero)
+    # Computing the normalization constant Z 
     Z  = jnp.sum(pdf_unn) * dx * dy + 1e-16
-    # Compute and return the moment E[x^n y^m]
+    # Computint the moment E[x^n y^m]
     val = (jnp.sum((XX**n) * (YY**m) * pdf_unn) * dx * dy) / Z
     return val
 
