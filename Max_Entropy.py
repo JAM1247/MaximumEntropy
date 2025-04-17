@@ -1,6 +1,6 @@
 import jax
 import jax.numpy as jnp 
-from jax import lax  # For parallelization with JAX
+from jax import lax  
 import numpy as np
 import matplotlib
 matplotlib.use('Agg')
